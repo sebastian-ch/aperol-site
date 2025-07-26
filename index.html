@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spirit Rain Clock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: black;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #time {
+            position: fixed;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 4rem;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            z-index: 100;
+            letter-spacing: 0.1em;
+        }
+
+        #date {
+            position: fixed;
+            top: 130px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            opacity: 0.8;
+            z-index: 100;
+        }
+
+        #quote {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.8rem;
+            text-align: center;
+            max-width: 80vw;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #quote.visible {
+            opacity: 1;
+        }
+
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .spirit {
+            position: absolute;
+            font-size: 30px;
+            user-select: none;
+            opacity: 0.8;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="time"></div>
+    <div id="date"></div>
+    <div id="quote"></div>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const spirits = ['🍹', '🍷', '🥃', '🍸', '🍹', '🥂', '🍾', '🍻'];
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const quotes = {
+            "anytime": [
+                "🍹",
+                "Aperol the way to happiness",
+                "Spritz happens",
+                "Orange you glad it's aperitivo time?",
+                "🍊☀️🇮🇹",
+                "Life's a peach, drink a spritz",
+                "Bitter is better with bubbles",
+                "Sip happens, make it sparkle",
+                "Feeling spritz-tacular",
+                "In an Aperol state of mind",
+                "Keeping it bitter-sweet",
+                "Bubbling with joy",
+                "🎉🎉",
+                "Orange vibes only",
+                "Sparkling personality activated",
+                "It's 5 o'clock somewhere in Italy",
+                "Aperitivo hour is the golden hour",
+                "Summer in a glass, year-round",
+                "When life gives you lemons, add Aperol",
+                "Prosecco makes everything better",
+                "Living la vita spritza",
+                "Aperol therapy session in progress",
+                "Bitter about Monday, sweet about spritz",
+                "My love language is Italian aperitifs",
+                "Spritz first, adulting second",
+                "Professional spritz taste-tester",
+                "Aperol together",
+                "Spritz and tell",
+                "Friends don't let friends drink alone (bring spritz)",
+                "Squad goals: day drinking with style",
+                "Aperol appreciation society member",
+                "You're the Aperol to my Prosecco",
+                "Don't be bitter, be better",
+                "Spritz-ing through life",
+                "Orange you thirsty?",
+                "Bitter-sweet symphony in a glass",
+                "Aperol-ing for your attention"
+            ]
+        };
+
+        let currentQuoteIndex = 0;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', {
+                hour12: true,
+                hour: 'numeric',
+                minute: '2-digit',
+
+            });
+            const date = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            document.getElementById('time').textContent = time;
+            document.getElementById('date').textContent = date;
+        }
+
+        function updateQuote() {
+            const quoteElement = document.getElementById('quote');
+            const allQuotes = quotes.anytime;
+
+            quoteElement.classList.remove('visible');
+
+            setTimeout(() => {
+                quoteElement.textContent = allQuotes[currentQuoteIndex];
+                quoteElement.classList.add('visible');
+                currentQuoteIndex = (currentQuoteIndex + 1) % allQuotes.length;
+            }, 250);
+        }
+
+        function createSpirit() {
+            const spirit = document.createElement('div');
+            spirit.className = 'spirit';
+            spirit.textContent = spirits[Math.floor(Math.random() * spirits.length)];
+            spirit.style.left = Math.random() * window.innerWidth + 'px';
+            spirit.style.top = '-50px';
+            spirit.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            spirit.style.opacity = Math.random() * 0.6 + 0.3;
+
+            const duration = Math.random() * 3000 + 4000;
+            spirit.style.animationName = 'fall';
+            spirit.style.animationDuration = duration + 'ms';
+
+            document.body.appendChild(spirit);
+
+            setTimeout(() => {
+                if (spirit.parentNode) {
+                    spirit.parentNode.removeChild(spirit);
+                }
+            }, duration);
+        }
+
+        function startSpiritRain() {
+            setInterval(createSpirit, 200);
+        }
+
+        resizeCanvas();
+        updateTime();
+        updateQuote();
+        setInterval(updateTime, 1000);
+        setInterval(updateQuote, 15000);
+        startSpiritRain();
+
+        window.addEventListener('resize', resizeCanvas);
+    </script>
+</body>
+
+</html>
